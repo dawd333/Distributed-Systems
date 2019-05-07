@@ -14,13 +14,14 @@ public class PremiumAccountImpl extends AccountImpl implements PremiumAccount {
     private Map<CurrencyType, Double> exchangeRates;
     private final double creditMultiplier = 1.1;
 
-    public PremiumAccountImpl(Person person, double income, HashMap<CurrencyType, Double> exchangeRates){
-        super(person, income);
+    public PremiumAccountImpl(Person person, double income, String password, HashMap<CurrencyType, Double> exchangeRates){
+        super(person, income, password);
         this.exchangeRates = exchangeRates;
     }
 
     @Override
-    public CreditInfo getCredit(Credit credit, Current current) throws InvalidDateFormat, UnsupportedCurrencyType {
+    public CreditInfo getCredit(Credit credit, Current current) throws InvalidDateFormat, UnsupportedCurrencyType, InvalidPassword {
+        checkPassword(current.ctx.get("password"));
         validateDate(credit.startDate, credit.endDate);
 
         double creditCost = getCreditValueInForeignCurrency(credit.value * creditMultiplier, credit.currencyType);

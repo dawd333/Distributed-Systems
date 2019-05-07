@@ -1,6 +1,7 @@
 package bank;
 
 import bank.generated.Bank.Account;
+import bank.generated.Bank.InvalidPassword;
 import bank.generated.Bank.Person;
 import com.zeroc.Ice.Current;
 
@@ -13,22 +14,33 @@ public class AccountImpl implements Account {
     private Person person;
     private double income;
     private double balance;
+    private String password;
 
-    public AccountImpl(Person person, double income){
+    public AccountImpl(Person person, double income, String password){
         this.person = person;
         this.income = income;
         this.balance = (double) ThreadLocalRandom.current().nextInt(1000, 10000);
+        this.password = password;
     }
 
     @Override
-    public double getAccountBalance(Current current){
+    public double getAccountBalance(Current current) throws InvalidPassword {
+        checkPassword(current.ctx.get("password"));
         logger.info("Account " + current.id + " balance is " + balance);
         return balance;
     }
 
     @Override
-    public void deposit(double money, Current current){
+    public void deposit(double money, Current current) throws InvalidPassword {
+        checkPassword(current.ctx.get("password"));
         logger.info("Account " + current.id + " deposit " + money);
         balance+=money;
+    }
+
+    void checkPassword(String password) throws InvalidPassword {
+        if(!this.password.equals(password)){
+            logger.warning("Wrong password provided");
+            throw new InvalidPassword("Wrong password provided");
+        }
     }
 }

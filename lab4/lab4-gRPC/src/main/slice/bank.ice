@@ -7,11 +7,6 @@ module Bank{
         NOK = 4
     };
 
-    enum AccountType {
-        STANDARD = 0,
-        PREMIUM = 1
-    };
-
     exception InvalidPeselFormat{
         string reason;
     };
@@ -23,6 +18,10 @@ module Bank{
     exception UnsupportedCurrencyType{
         string reason;
     };
+
+    exception InvalidPassword{
+        string reason;
+    }
 
     struct Date{
         int day;
@@ -51,15 +50,16 @@ module Bank{
     };
 
     interface Account{
-        double getAccountBalance();
-        void deposit(double money);
+        double getAccountBalance() throws InvalidPassword;
+        void deposit(double money) throws InvalidPassword;
     };
 
     interface PremiumAccount extends Account{
-        CreditInfo getCredit(Credit credit) throws InvalidDateFormat, UnsupportedCurrencyType;
+        CreditInfo getCredit(Credit credit) throws InvalidDateFormat, UnsupportedCurrencyType, InvalidPassword;
     };
 
     interface AccountFactory{
         Account* createAccount(Person person, double income) throws InvalidPeselFormat;
+        string getPassword();
     };
 };
