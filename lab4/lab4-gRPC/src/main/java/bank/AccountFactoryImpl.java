@@ -5,7 +5,9 @@ import com.zeroc.Ice.Current;
 import com.zeroc.Ice.Identity;
 import exchange.generated.CurrencyType;
 
+
 import java.util.HashMap;
+import java.util.Random;
 import java.util.logging.Logger;
 
 public class AccountFactoryImpl implements AccountFactory {
@@ -20,13 +22,11 @@ public class AccountFactoryImpl implements AccountFactory {
         this.exchangeRates = exchangeRates;
     }
 
-    //ObjectAdapter map object identity to servant
-    //Prx, because we return interface. Pointers are similar to pointers from cpp.
     @Override
     public AccountPrx createAccount(Person person, double income, Current current) throws InvalidPeselFormat{
         validatePesel(person.pesel);
         logger.info("New user created with ID: " + person.pesel);
-        password = "ala123";
+        password = "ala123" + new Random().nextInt(5);
         if(income > normalAccountLimit){
             return PremiumAccountPrx.uncheckedCast(current.adapter.add(new PremiumAccountImpl(person, income, password, exchangeRates), new Identity(person.pesel, "Client")));
         }

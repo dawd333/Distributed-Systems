@@ -29,7 +29,7 @@ public class Bank {
 
     private final HashMap<CurrencyType, Double> exchangeRates = new HashMap<>();
     private String bankName;
-    private final String bankPort = "6789";
+    private String bankPort;
 
     public Bank (String host, int port){
         channel = ManagedChannelBuilder.forAddress(host, port)
@@ -44,6 +44,8 @@ public class Bank {
         Communicator communicator = null;
         try {
             bankName = br.readLine();
+            System.out.println("Enter bank port");
+            bankPort = br.readLine();
             System.out.println("Type currencies which interest you (PLN, USD, EUR, CHF, NOK), separate with ;");
             String currencies = br.readLine();
             Arrays.stream(currencies.split(";"))
