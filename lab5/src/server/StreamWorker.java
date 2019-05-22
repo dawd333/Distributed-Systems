@@ -1,7 +1,6 @@
 package server;
 
 import akka.actor.AbstractActor;
-import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.stream.ActorMaterializer;
@@ -33,9 +32,8 @@ public class StreamWorker extends AbstractActor {
     public AbstractActor.Receive createReceive() {
         return receiveBuilder()
                 .match(Request.class, request -> {
-                    System.out.println(getSender());
                     Source<ByteString, CompletionStage<IOResult>> source = FileIO.fromPath(Paths.get("resources/" + title + ".txt"));
-                    source.via(Framing.delimiter(ByteString.fromString("\n"), 20000, FramingTruncation.DISALLOW))
+                    source.via(Framing.delimiter(ByteString.fromString("\n"), 20000, FramingTruncation.ALLOW))
                             .map(ByteString::utf8String)
                             .throttle(1, Duration.create(1, TimeUnit.SECONDS), 1, ThrottleMode.shaping())
                             .to(Sink.actorRef(getSender(), "stream completed"))

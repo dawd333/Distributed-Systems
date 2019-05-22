@@ -5,11 +5,10 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.pf.DeciderBuilder;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
 import messages.Request;
 import scala.concurrent.duration.Duration;
+
+import java.util.concurrent.TimeUnit;
 
 import static akka.actor.SupervisorStrategy.restart;
 
@@ -46,7 +45,7 @@ public class ServerActor extends AbstractActor {
     }
 
     private static SupervisorStrategy strategy =
-            new OneForOneStrategy(10, Duration.create("1 minute"), DeciderBuilder
+            new OneForOneStrategy(10, Duration.create(1, TimeUnit.MINUTES), DeciderBuilder
                     .matchAny(e -> restart())
                     .build());
 

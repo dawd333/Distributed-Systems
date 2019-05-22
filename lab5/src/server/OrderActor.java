@@ -22,11 +22,15 @@ public class OrderActor extends AbstractActor {
 
     private String orderPath = "resources/orders.txt";
 
+    private boolean hasResponse;
+
     @Override
     public AbstractActor.Receive createReceive() {
         return receiveBuilder()
                 .match(Request.class, request -> {
+                    log.info("received request: " + request.getCommand() + " " + request.getValue());
                     title = request.getValue();
+                    hasResponse = false;
                     searchActor.tell(request, getSelf());
                 })
                 .match(ResponseNotFound.class, response -> {
@@ -34,9 +38,12 @@ public class OrderActor extends AbstractActor {
                     context().actorSelection("akka.tcp://client_system@127.0.0.1:2552/user/clientActor").tell(res, getSelf());
                 })
                 .match(Response.class, response -> {
-                    addOrder(title);
-                    Response res = new Response("order confirmed");
-                    context().actorSelection("akka.tcp://client_system@127.0.0.1:2552/user/clientActor").tell(res, getSelf());
+                    if (!hasResponse) {
+                        hasResponse = true;
+                        addOrder(title);
+                        Response res = new Response("order confirmed");
+                        context().actorSelection("akka.tcp://client_system@127.0.0.1:2552/user/clientActor").tell(res, getSelf());
+                    }
                 })
                 .match(OrderCheck.class, request -> {
                     OrderCheckResponse response = new OrderCheckResponse(request.getTitle(), checkOrders(request.getTitle()));

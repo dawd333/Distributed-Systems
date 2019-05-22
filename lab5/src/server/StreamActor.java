@@ -24,6 +24,7 @@ public class StreamActor extends AbstractActor {
     public AbstractActor.Receive createReceive() {
         return receiveBuilder()
                 .match(Request.class, request -> {
+                    log.info("received request: " + request.getCommand() + " " + request.getValue());
                     clientActor = getSender();
                     orderActor.tell(new OrderCheck(request.getValue()), getSelf());
                 })
@@ -33,7 +34,7 @@ public class StreamActor extends AbstractActor {
                         getContext().actorSelection("akka.tcp://client_system@127.0.0.1:2552/user/clientActor").tell(res, getSelf());
                     } else {
                         Request request = new Request("stream", response.getTitle());
-                        context().actorOf(Props.create(StreamWorker.class, response.getTitle()), "streamWorker").tell(request, clientActor);
+                        context().actorOf(Props.create(StreamWorker.class, response.getTitle())).tell(request, clientActor);
                     }
                 })
                 .matchAny(s -> log.info("received unknown message"))

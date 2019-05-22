@@ -27,6 +27,7 @@ public class SearchActor extends AbstractActor {
     public AbstractActor.Receive createReceive() {
         return receiveBuilder()
                 .match(Request.class, request -> {
+                    log.info("received request: " + request.getCommand() + " " + request.getValue());
                     searchWorker1.tell(request, getSender());
                     searchWorker2.tell(request, getSender());
                 })
